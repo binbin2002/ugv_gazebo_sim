@@ -1,0 +1,44 @@
+<launch>
+    <!-- initial pose 初始位姿 -->
+    <arg name="x" default="0.0"/>
+    <arg name="y" default="0.0"/>
+    <arg name="z" default="0.5"/> <!--xiugai-->
+    <arg name="yaw" default="0.0"/>
+    <!-- 机器人命名空间 -->
+    <arg name="robot_namespace" default="/"/>
+
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+    <!-- 启动文件可传递的参数 -->
+    <arg name="paused" default="true" />
+    <arg name="use_sim_time" default="true" />
+    <arg name="gui" default="true" />
+    <arg name="headless" default="false" />
+    <arg name="debug" default="true" />
+     <!-- 包含 scout_mini_stock.launch 文件，并传递 robot_namespace 参数 -->
+    <include file="$(find scout_description)/launch/scout_mini_stock.launch">
+        <arg name="robot_namespace" value="$(arg robot_namespace)" />
+    </include>
+    <!-- 生成并配置模型 -->
+    <node name="spawn_scout_model" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)
+              -y $(arg y)
+              -z $(arg z)
+              -Y $(arg yaw)
+              -unpause
+              -urdf
+              -param robot_description
+              -model 'scout$(arg robot_namespace)'" />
+
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+     <!-- 从 YAML 文件加载关节控制器配置到参数服务器 -->
+    <rosparam file="$(find scout_gazebo_sim)/config/scout_v2_control.yaml" command="load"/>
+
+    <!-- load the controllers -->
+    <!-- 加载控制器 -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="scout_state_controller scout_motor_fr_controller scout_motor_fl_controller scout_motor_rl_controller scout_motor_rr_controller"/>
+    <!-- 机器人状态发布器 -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <!-- skid_steer 控制器 -->
+    <node name="scout_skid_steer_controller" pkg="scout_gazebo_sim" type="scout_skid_steer_controller">
+        <param name="robot_namespace" type="string" value="$(arg robot_namespace)" />
+    </node>
+</launch> 

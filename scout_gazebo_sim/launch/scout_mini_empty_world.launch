@@ -1,0 +1,20 @@
+<launch>
+    <!-- 定义一个名为 "robot_namespace" 的参数，默认值为 "/" -->
+    <arg name="robot_namespace" default="/"/>
+
+    <!-- Load the surrounding environment into Gazebo -->
+    <arg name="world_name" default="$(find scout_gazebo_sim)worlds/weston_robot_empty.world"/>
+     <!-- 使用指定的参数启动 empty_world.launch -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+    <!-- 加载并启动 scout_mini 机器人 -->
+    <include file="$(find scout_gazebo_sim)/launch/spawn_scout_mini.launch"></include>
+    <!-- 启动 RViz 并加载指定的配置文件 -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_description)/rviz/navigation.rviz" />
+</launch>

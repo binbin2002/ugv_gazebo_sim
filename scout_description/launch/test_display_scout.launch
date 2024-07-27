@@ -1,0 +1,27 @@
+<launch>
+  <arg name="model" />
+  <arg name="gui"  default="False" />
+  <!-- Loading model files -->
+
+    <arg name = "model_xacro" default = "$(find scout_description)/urdf/mini.xacro" />
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model_xacro)" />
+  <!-- <param  name="robot_description"  textfile="$(find scout_description)/urdf/scout_mini.urdf" /> -->
+  <param  name="use_gui"  value="$(arg gui)" />
+  <!-- Launch  the joint state publisher -->
+  <node  name="joint_state_publisher"  pkg="joint_state_publisher"  type="joint_state_publisher" />
+  <!-- Launch  the robot state publisher -->
+  <node  name="robot_state_publisher"  pkg="robot_state_publisher"  type="robot_state_publisher" />
+
+     <node name="rviz"  pkg="rviz"  type="rviz"  args="-d $(find scout_description)/rviz/scout_mini_model_display.rviz" /> 
+      <arg name="world_name" default="$(find scout_gazebo_sim)/worlds/clearpath_playpen.world"/>
+     <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+    <node pkg="gazebo_ros" type="spawn_model" name="model" args="-urdf -model scout -param robot_description"  />  
+
+</launch>
